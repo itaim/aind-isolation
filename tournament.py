@@ -22,8 +22,10 @@ from sample_players import (RandomPlayer, open_move_score,
                             improved_score, center_score)
 from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
                         custom_score_2, custom_score_3)
+import game_agent
+import statistics
 
-NUM_MATCHES = 5  # number of matches against each opponent
+NUM_MATCHES = 50  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
 
 DESCRIPTION = """
@@ -66,10 +68,17 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
             if termination == "timeout":
                 timeout_count += 1
             elif termination == "forfeit":
+                loser = game.get_opponent(winner)
+                legal_moves = game.get_legal_moves(loser)
+                if legal_moves:
+                    n = 'Unknown'
+                    aa = [x for x in test_agents + [cpu_agent] if x.player == loser]
+                    if aa:
+                        n = aa[0].name
+                    print('{} forfeiting with legal moves {}'.format(n,legal_moves))
                 forfeit_count += 1
 
     return timeout_count, forfeit_count
-
 
 def update(total_wins, wins):
     for player in total_wins:
@@ -129,10 +138,10 @@ def main():
     # Define two agents to compare -- these agents will play from the same
     # starting position against the same adversaries in the tournament
     test_agents = [
-        Agent(AlphaBetaPlayer(score_fn=improved_score), "AB_Improved"),
-        Agent(AlphaBetaPlayer(score_fn=custom_score), "AB_Custom"),
-        Agent(AlphaBetaPlayer(score_fn=custom_score_2), "AB_Custom_2"),
-        Agent(AlphaBetaPlayer(score_fn=custom_score_3), "AB_Custom_3")
+        # Agent(AlphaBetaPlayer(score_fn=improved_score), "AB_Improved"),
+        # Agent(AlphaBetaPlayer(score_fn=custom_score), "AB_Custom"),
+        Agent(AlphaBetaPlayer(score_fn=custom_score_2), "AB_Custom_2")
+        # Agent(AlphaBetaPlayer(score_fn=custom_score_3), "AB_Custom_3")
     ]
 
     # Define a collection of agents to compete against the test agents
@@ -150,8 +159,35 @@ def main():
     print("{:^74}".format("*************************"))
     print("{:^74}".format("Playing Matches"))
     print("{:^74}".format("*************************"))
-    play_matches(cpu_agents, test_agents, NUM_MATCHES)
 
+    play_matches(cpu_agents, test_agents, NUM_MATCHES)
+    # print("moves_forward_weighted_difference mean {} median {} stddev {} variance {}".format(statistics.mean(game_agent.mfwd),
+    #                                                                                          statistics.median(game_agent.mfwd),
+    #                                                                                          statistics.stdev(game_agent.mfwd),
+    #                                                                                          statistics.variance(game_agent.mfwd)))
+    # print("center distance score mean {} median {} stddev {} variance {}".format(statistics.mean(game_agent.all_cds),
+    #                                                                              statistics.median(game_agent.all_cds),
+    #                                                                              statistics.stdev(game_agent.all_cds),
+    #                                                                              statistics.variance(game_agent.all_cds)))
+    # print_stats()
+
+def print_stats():
+    stats = game_agent.mfwd_stats
+    for i in range(49):
+        if i in stats: # and len(stats[i][0]) > 0
+            # print("move {} open score: mean {} median {} stddev {}".format(i,
+            #     statistics.mean(stats[i][0]),
+            #     statistics.median(stats[i][0]),
+            #     statistics.stdev(stats[i][0])))
+            # print("move {} mfwd score: mean {} median {} stddev {}".format(i,
+            #     statistics.mean(stats[i][1]),
+            #     statistics.median(stats[i][1]),
+            #     statistics.stdev(stats[i][1])))
+            # print("move {} center distance score: mean {} median {} stddev {} ".format(i,
+            #     statistics.mean(stats[i][2]),
+            #     statistics.median(stats[i][2]),
+            #     statistics.stdev(stats[i][2])))
+            print("move {} mfwd ratio mean {}".format(i,statistics.mean(stats[i])))
 
 if __name__ == "__main__":
     main()

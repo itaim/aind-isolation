@@ -35,6 +35,17 @@ def custom_score(game, player):
     """
     raise NotImplementedError
 
+# def to_leaf_node(game):
+#     return (to_row_col(game._board_state[-1], game.height), to_row_col(game._board_state[-2], game.height))
+#
+# def to_row_col(idx,height):
+#     if not idx:
+#         return (-1,-1)
+#     return (idx%height,idx//height)
+#
+# def track_visited_nodes(game,player):
+#     # print('tracking visited node for player {}'.format(1+(game._player_2 == player)))
+#     player.visited_nodes.append(to_leaf_node(game))
 
 class CustomPlayer:
     """Game-playing agent to use in the optional player vs player Isolation
